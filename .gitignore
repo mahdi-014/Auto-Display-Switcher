@@ -1,0 +1,25 @@
+# Build results and published binaries
+[Bb]in/
+[Oo]bj/
+publish-temp/
+publish-output/
+publish-release/
+artifacts/
+release-files/
+*.exe
+*.dll
+*.pdb
+*.zip
+*.sha256
+
+# Editor and IDE metadata
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Local logs and backups
+*.bak
+*.bundle
+diagnostic.log
