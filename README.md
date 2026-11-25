@@ -56,6 +56,8 @@ In [`Program.cs`](Program.cs), `MonitorPower()` polls `NativeMethods.GetSystemPo
 
 ## D. Installation Guide — Normal Users
 
+For complete download and checksum verification steps, see **[DOWNLOAD.md](DOWNLOAD.md)**.
+
 > **Important Notice Before Downloading**
 > - **No signed public GitHub Release exists yet.**
 > - `AutoDisplaySwitcher.exe` is **not** committed to the Git source tree.
@@ -249,6 +251,7 @@ AutoDisplaySwitcher/
 ├── CHANGELOG.md                   # Release history
 ├── CODE-SIGNING-POLICY.md         # SignPath Foundation policy & verification guidelines
 ├── CONTRIBUTING.md                # Contribution guidelines
+├── DOWNLOAD.md                    # Unsigned CI artifact download & SHA256 verification guide
 ├── LICENSE                        # MIT License
 ├── PRIVACY.md                     # Zero-telemetry / local-only privacy statement
 ├── README.md                      # Project documentation
@@ -264,8 +267,8 @@ AutoDisplaySwitcher/
 ## K. Security and Release Status
 
 - **Current Build Status:** All builds produced from this repository are currently **unsigned**.
-- **Code Signing Status:** Onboarding and approval for free open-source code signing through the **SignPath Foundation** are **pending**. No SignPath credentials or private signing keys are stored in the repository. See [CODE-SIGNING-POLICY.md](CODE-SIGNING-POLICY.md) and [SECURITY.md](SECURITY.md).
-- **No Signed Release Available:** No signed production release is published yet.
+- **Code Signing Status:** A free open-source code signing application has been submitted to the **SignPath Foundation**, and approval is **pending**. No certificate or signing permission has been granted yet, and no private signing keys are stored in the repository. See [CODE-SIGNING-POLICY.md](CODE-SIGNING-POLICY.md), [PRIVACY.md](PRIVACY.md), [SECURITY.md](SECURITY.md), and [DOWNLOAD.md](DOWNLOAD.md).
+- **No Signed Release Available:** No signed public release is available yet.
 - **Security Guidance:** Never disable Windows Smart App Control, Microsoft Defender, WDAC, or Code Integrity policies to bypass warnings for unsigned executables.
 
 ---
