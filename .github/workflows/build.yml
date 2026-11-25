@@ -1,0 +1,94 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build (win-x64)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore project
+        run: dotnet restore AutoDisplaySwitcher.csproj
+
+      - name: Build Release configuration
+        run: dotnet build AutoDisplaySwitcher.csproj -c Release --no-restore
+
+      - name: Publish self-contained win-x64 single-file EXE
+        run: >
+          dotnet publish AutoDisplaySwitcher.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:EnableCompressionInSingleFile=true
+          -o publish-output
+
+      - name: Verify, package, and generate SHA256 checksums
+        shell: pwsh
+        run: |
+          $exePath = "publish-output\AutoDisplaySwitcher.exe"
+          $batPath = "Final-Release\AutoDisplaySwitcher.bat"
+
+          if (!(Test-Path $exePath)) {
+            Write-Error "Missing published EXE: $exePath"
+            exit 1
+          }
+
+          $exeSize = (Get-Item $exePath).Length
+          if ($exeSize -lt 10MB) {
+            Write-Error "Unexpected EXE size: $exeSize bytes"
+            exit 1
+          }
+
+          if (!(Test-Path $batPath)) {
+            Write-Error "Missing launcher BAT: $batPath"
+            exit 1
+          }
+
+          New-Item -ItemType Directory -Path "package" -Force | Out-Null
+          Copy-Item $exePath -Destination "package\AutoDisplaySwitcher.exe" -Force
+          Copy-Item $batPath -Destination "package\AutoDisplaySwitcher.bat" -Force
+
+          $packaged = Get-ChildItem "package" -File
+          if ($packaged.Count -ne 2) {
+            Write-Error "Expected exactly 2 packaged files, found $($packaged.Count)"
+            exit 1
+          }
+
+          $hashes = Get-FileHash -Path "package\AutoDisplaySwitcher.exe", "package\AutoDisplaySwitcher.bat" -Algorithm SHA256
+          Write-Host "=== SHA256 Checksums ==="
+          foreach ($h in $hashes) {
+            $name = [System.IO.Path]::GetFileName($h.Path)
+            Write-Host "$($h.Hash)  $name"
+          }
+
+          "## Build Checksums (SHA256)" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          "| File | Size (bytes) | SHA256 |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          "| :--- | ---: | :--- |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          foreach ($h in $hashes) {
+            $item = Get-Item $h.Path
+            "| ``$($item.Name)`` | $($item.Length) | ``$($h.Hash)`` |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoDisplaySwitcher-win-x64
+          path: package/
